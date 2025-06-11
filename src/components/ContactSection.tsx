@@ -116,7 +116,33 @@ const ContactSection = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-lg">Instagram</h4>
-                      <p className="text-muted-foreground">@khameel</p>
+                      <p className="text-muted-foreground">@iam_khameel</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="border-pink-500 text-pink-400 hover:bg-pink-500 hover:text-white"
+                    onClick={() =>
+                      window.open(
+                        "https://www.instagram.com/iam_khameel?igsh=cHp6ejJ4M2s2cWx2&utm_source=qr",
+                        "_blank"
+                      )
+                    }
+                  >
+                    Follow
+                  </Button>
+                </div>
+              </Card>
+              
+              <Card className="bg-card border-border p-6 hover:border-primary transition-all duration-300">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-pink-500/20 rounded-lg flex items-center justify-center">
+                      <Instagram className="w-6 h-6 text-pink-400" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-lg">InstagramChannel</h4>
+                      <p className="text-muted-foreground">@thepack_channel</p>
                     </div>
                   </div>
                   <Button 
