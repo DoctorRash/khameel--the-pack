@@ -10,8 +10,10 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface PackSignupRequest {
+interface ContactRequest {
+  name: string;
   email: string;
+  message: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -20,13 +22,13 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email }: PackSignupRequest = await req.json();
+    const { name, email, message }: ContactRequest = await req.json();
 
-    // Send welcome email to new pack member
-    const memberEmailResponse = await resend.emails.send({
-      from: "The Pack <noreply@yourdomain.com>",
+    // Send confirmation email to sender
+    const confirmationEmailResponse = await resend.emails.send({
+      from: "Khameel <onboarding@resend.dev>",
       to: [email],
-      subject: "Welcome to The Pack! 🐺",
+      subject: "Message Received - We'll Be In Touch",
       html: `
         <div style="background: #1a1a1a; color: #fff; padding: 40px; font-family: Arial, sans-serif;">
           <div style="max-width: 600px; margin: 0 auto;">
@@ -34,34 +36,20 @@ const handler = async (req: Request): Promise<Response> => {
               KHAMEEL
             </h1>
             
-            <h2 style="color: #8b5cf6; margin-bottom: 20px;">Welcome to The Pack!</h2>
+            <h2 style="color: #8b5cf6; margin-bottom: 20px;">Thanks for reaching out, ${name}!</h2>
             
             <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-              You're now part of something real. No trends, no gimmicks - just pure energy and exclusive access to everything first.
+              Your message has been received and we'll get back to you as soon as possible.
             </p>
             
-            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-              Here's what you can expect:
-            </p>
-            
-            <ul style="font-size: 16px; line-height: 1.8; margin-bottom: 30px;">
-              <li>🎵 Early access to new releases</li>
-              <li>🎨 Exclusive wallpapers and content</li>
-              <li>📹 Behind-the-scenes footage</li>
-              <li>🎫 First dibs on show tickets</li>
-              <li>💬 Direct community access</li>
-            </ul>
-            
-            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
-              You're not alone. You're one of us.
-            </p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="https://www.instagram.com/channel/Abb9CNLAPtdprdS9/" 
-                 style="background: #8b5cf6; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
-                Join The Pack Channel
-              </a>
+            <div style="background: #2a2a2a; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #8b5cf6; margin-bottom: 10px;">Your Message:</h3>
+              <p style="font-style: italic;">"${message}"</p>
             </div>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+              For urgent matters, feel free to reach out directly at bookkhameel@gmail.com
+            </p>
             
             <p style="font-size: 14px; color: #666; text-align: center; margin-top: 40px;">
               Built in the dark. Back for blood.
@@ -71,26 +59,37 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    // Send notification to Khameel
-    const notificationEmailResponse = await resend.emails.send({
-      from: "Pack Notifications <noreply@yourdomain.com>",
+    // Send message to Khameel
+    const businessEmailResponse = await resend.emails.send({
+      from: "Website Contact <onboarding@resend.dev>",
       to: ["bookkhameel@gmail.com"],
-      subject: "New Pack Member Joined! 🐺",
+      subject: `New Contact Message from ${name}`,
       html: `
         <div style="background: #f4f4f4; padding: 20px; font-family: Arial, sans-serif;">
-          <div style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; margin: 0 auto;">
-            <h2 style="color: #8b5cf6; margin-bottom: 20px;">New Pack Member!</h2>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Joined:</strong> ${new Date().toLocaleString()}</p>
+          <div style="background: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #8b5cf6; margin-bottom: 20px;">New Contact Message</h2>
+            
+            <div style="margin-bottom: 20px;">
+              <p><strong>Name:</strong> ${name}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+            
+            <div style="background: #f8f8f8; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="margin-bottom: 10px;">Message:</h3>
+              <p style="white-space: pre-wrap;">${message}</p>
+            </div>
+            
             <p style="margin-top: 20px; color: #666;">
-              Another member has joined The Pack. Keep building that community! 🔥
+              Reply directly to this email to respond to ${name}.
             </p>
           </div>
         </div>
       `,
+      replyTo: email,
     });
 
-    console.log("Pack signup emails sent successfully:", { memberEmailResponse, notificationEmailResponse });
+    console.log("Contact emails sent successfully:", { confirmationEmailResponse, businessEmailResponse });
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
@@ -100,7 +99,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("Error in send-pack-signup function:", error);
+    console.error("Error in send-contact-email function:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
